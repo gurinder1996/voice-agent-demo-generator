@@ -2,6 +2,31 @@ import { NextResponse } from "next/server";
 import FirecrawlApp from '@mendable/firecrawl-js';
 import { supabase } from '@/lib/supabase';
 
+interface CrawlStatusResponse {
+  success: boolean;
+  id: string;
+  status?: string;
+  data: Array<{
+    markdown: string;
+    metadata?: {
+      url?: string;
+    };
+  }>;
+  completed?: number;
+  total?: number;
+}
+
+interface ErrorResponse {
+  success: false;
+  error: string;
+}
+
+type FireCrawlResponse = CrawlStatusResponse | ErrorResponse;
+
+function isCrawlStatusResponse(response: any): response is CrawlStatusResponse {
+  return 'data' in response && Array.isArray(response.data);
+}
+
 export async function POST(req: Request) {
   try {
     const { url, id } = await req.json();
@@ -31,13 +56,20 @@ export async function POST(req: Request) {
     console.log('Initial crawl response:', crawlResponse);
 
     // Handle both immediate completion and async crawling
-    let result = crawlResponse;
-    if (!crawlResponse.status || crawlResponse.status !== 'completed') {
-      if (!crawlResponse.success || !crawlResponse.id) {
-        throw new Error('Failed to start crawl: ' + JSON.stringify(crawlResponse));
+    let result: CrawlStatusResponse;
+
+    if (!isCrawlStatusResponse(crawlResponse)) {
+      throw new Error('Failed to start crawl: ' + JSON.stringify(crawlResponse));
+    }
+
+    result = crawlResponse;
+    
+    if (!result.status || result.status !== 'completed') {
+      if (!result.success || !result.id) {
+        throw new Error('Failed to start crawl: ' + JSON.stringify(result));
       }
 
-      console.log('Crawl started with ID:', crawlResponse.id);
+      console.log('Crawl started with ID:', result.id);
 
       // Step 2: Poll for results
       let completed = false;
@@ -48,7 +80,13 @@ export async function POST(req: Request) {
         console.log(`Checking crawl status (attempt ${attempts + 1}/${maxAttempts})...`);
         
         try {
-          result = await app.checkCrawlStatus(crawlResponse.id);
+          const statusResponse = await app.checkCrawlStatus(result.id);
+          
+          if (!isCrawlStatusResponse(statusResponse)) {
+            throw new Error('Invalid status response: ' + JSON.stringify(statusResponse));
+          }
+
+          result = statusResponse;
           console.log('Status:', result.status);
           console.log('Progress:', result.completed, '/', result.total, 'pages');
           
