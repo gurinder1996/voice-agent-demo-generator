@@ -172,7 +172,7 @@ export default function DemoPage() {
           your AI Assistant from {settings?.company_name}
         </h1>
         <p className="text-xl text-muted-foreground">
-          Click the button below to start a conversation
+          Choose From 60+ Voices In The Dropdown Below:
         </p>
       </div>
 
