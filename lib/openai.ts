@@ -1,7 +1,11 @@
 import OpenAI from "openai"
 import { type FormValues, type ApiKeyValues } from "@/components/prompt-form"
 
-const SYSTEM_PROMPT = `Use the user provided data to create a personalized version of the following prompt;
+const SYSTEM_PROMPT = `Use the user provided data to create a personalized version of the following prompt. If website content is provided, use it to:
+1. Understand the company's actual products, services, and unique value propositions
+2. Extract key benefits and features to mention during the call
+3. Match the company's tone and terminology
+4. Reference specific information from the website when relevant during the conversation
 
 You are an AI sales representative for a company in your industry. You specialize in helping businesses solve common challenges with tailored solutions. Your main objective is to introduce the company's offerings and secure a follow-up action, such as a demo or meeting.
 
@@ -238,13 +242,54 @@ George: "Of course, I understand this is an important decision. Would it be help
 Example dialogue for declined:
 George: "I understand you may not be ready for a demo right now. Could I ask what specific concerns you have about exploring this solution?"
 Person: "We're not interested right now."
-George: "I appreciate your directness. If your situation with missed calls changes, we're here to help. Thank you for your time today."`
+George: "I appreciate your directness. If your situation with missed calls changes, we're here to help. Thank you for your time today."
+
+`;
 
 export async function generateSalesPrompt(formData: FormValues & ApiKeyValues): Promise<string> {
   const openai = new OpenAI({
     apiKey: formData.apiKey,
     dangerouslyAllowBrowser: true,
-  })
+  });
+
+  let websiteContent = "";
+  if (formData.websiteUrl && formData.websiteUrl.trim() !== '') {
+    try {
+      console.log('Starting website crawl...');
+      // Make a server-side API call to Firecrawl
+      const response = await fetch('/api/crawl', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: formData.websiteUrl
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('Crawl error details:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+        // Don't throw, just continue with empty content
+      } else {
+        console.log('Successfully crawled website');
+        const data = await response.json();
+        if (data.content) {
+          websiteContent = data.content;
+          console.log('Successfully extracted website content');
+          // Add the website content to formData for saving to Supabase
+          (formData as any).websiteContent = websiteContent;
+        }
+      }
+    } catch (error) {
+      console.error('Error crawling website:', error);
+      // Don't throw error, just continue with empty website content
+    }
+  }
 
   const USER_PROMPT = `
 AI Representative name: ${formData.aiName}
@@ -270,7 +315,9 @@ ${formData.objections}
 
 Additional Info:
 ${formData.additionalInfo || "None provided"}
-`
+
+${websiteContent ? `Website Content:\n${websiteContent}` : ""}
+`;
 
   try {
     const response = await openai.chat.completions.create({
@@ -281,13 +328,13 @@ ${formData.additionalInfo || "None provided"}
       ],
       temperature: 0.7,
       max_tokens: 2000,
-    })
+    });
 
-    return response.choices[0]?.message?.content || "Failed to generate prompt"
+    return response.choices[0]?.message?.content || "Failed to generate prompt";
   } catch (error) {
     if (error instanceof Error) {
-      throw new Error(`OpenAI API Error: ${error.message}`)
+      throw new Error(`OpenAI API Error: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while generating the prompt")
+    throw new Error("An unknown error occurred while generating the prompt");
   }
 }

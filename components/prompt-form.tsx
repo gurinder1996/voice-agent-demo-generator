@@ -48,6 +48,7 @@ const formSchema = z.object({
   objective: z.string().min(1, "Call objective is required"),
   objections: z.string().min(1, "Common objections are required"),
   additionalInfo: z.string().optional(),
+  websiteUrl: z.string().url("Please enter a valid URL").optional().or(z.literal('')),
 })
 
 const apiKeySchema = z.object({
@@ -111,6 +112,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
       objective: "",
       objections: "",
       additionalInfo: "",
+      websiteUrl: "",
     },
   })
 
@@ -176,6 +178,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
             objective: formData.objective,
             objections: formData.objections,
             additionalInfo: formData.additionalInfo,
+            websiteUrl: formData.websiteUrl,
             apiKey: formData.apiKey,
             vapiKey: formData.vapiKey
           }
@@ -217,6 +220,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
         objective: formData.objective,
         objections: formData.objections,
         additionalInfo: formData.additionalInfo,
+        websiteUrl: formData.websiteUrl,
         apiKey: formData.apiKey,
         vapiKey: formData.vapiKey
       }
@@ -282,7 +286,8 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
           product: parsedData.product || "",
           objective: parsedData.objective || "",
           objections: parsedData.objections || "",
-          additionalInfo: parsedData.additionalInfo || ""
+          additionalInfo: parsedData.additionalInfo || "",
+          websiteUrl: parsedData.websiteUrl || "",
         }
         
         // Reset form with complete data
@@ -313,6 +318,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
         objective: currentFormData.objective,
         objections: currentFormData.objections,
         additionalInfo: currentFormData.additionalInfo,
+        websiteUrl: currentFormData.websiteUrl,
         apiKey: "",
         vapiKey: ""
       }
@@ -333,6 +339,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
         objective: "",
         objections: "",
         additionalInfo: "",
+        websiteUrl: "",
       })
       localStorage.removeItem(STORAGE_KEY)
       setCanUndo(true)
@@ -593,6 +600,24 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
                   <Textarea 
                     placeholder="Any other details that might be helpful..."
                     className="h-20 bg-muted/50"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="websiteUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Company Website URL (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g. https://example.com"
+                    className="bg-muted/50"
                     {...field}
                   />
                 </FormControl>

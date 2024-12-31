@@ -27,6 +27,8 @@ export interface Demo {
   is_active: boolean;
   version: number;
   vapi_key: string;
+  website_content?: string;
+  website_url?: string;
 }
 
 export type DemoPreview = Pick<
