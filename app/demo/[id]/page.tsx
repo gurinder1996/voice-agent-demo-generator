@@ -44,7 +44,7 @@ export default function DemoPage() {
   const params = useParams()
   const demoId = params?.id as string
   const [settings, setSettings] = useState<DemoSettings | null>(null)
-  const [selectedVoiceId, setSelectedVoiceId] = useState(voices[0].id)
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>(voices[0].id)
   const { initiateCall, endCall, state: callState } = useCallState()
   const isActiveCall = callState === 'active'
   const [error, setError] = useState<string | null>(null)
