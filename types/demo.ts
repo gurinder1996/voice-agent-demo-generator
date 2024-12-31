@@ -28,3 +28,8 @@ export interface Demo {
   version: number;
   vapi_key: string;
 }
+
+export type DemoPreview = Pick<
+  Demo,
+  'id' | 'created_at' | 'company_name' | 'ai_representative_name' | 'industry'
+>;

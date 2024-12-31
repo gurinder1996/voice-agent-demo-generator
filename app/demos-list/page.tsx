@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
-import { Demo } from '@/types/demo';
+import { Demo, DemoPreview } from '@/types/demo';
 import { format } from 'date-fns';
 import {
   Table,
@@ -62,7 +62,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export default function DemosListPage() {
-  const [demos, setDemos] = useState<Demo[]>([]);
+  const [demos, setDemos] = useState<DemoPreview[]>([]);
   const [loading, setLoading] = useState(true);
   
   const supabase = createBrowserClient(
