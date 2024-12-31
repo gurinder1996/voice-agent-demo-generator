@@ -1,8 +1,18 @@
+import { IconType } from 'react-icons';
+
+interface SocialLink {
+  href: string;
+  icon: IconType;
+}
+
 function SocialLinks({ className }: { className?: string }) {
+  const socialLinks: SocialLink[] = [
+    // Add your social links here if needed
+  ];
+
   return (
     <div className={`flex ${className}`}>
-      {[
-      ].map((social, index) => (
+      {socialLinks.map((social, index) => (
         <span key={index}>
           <a href={social.href} target="_blank" rel="noopener noreferrer">
             <social.icon
@@ -15,7 +25,6 @@ function SocialLinks({ className }: { className?: string }) {
     </div>
   );
 }
-
 
 export function SiteFooter() {
   return (
