@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       .filter(page => page.markdown && page.markdown.trim().length > 0)
       .map(page => ({
         url: page.metadata?.url || '',
-        content: page.markdown.trim(),
+        content: page.markdown?.trim() ?? '',
         metadata: page.metadata
       }));
 
