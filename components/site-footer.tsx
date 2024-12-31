@@ -1,5 +1,3 @@
-import { FaTwitter, FaLinkedin, FaGithub, FaYoutube } from "react-icons/fa";
-
 function SocialLinks({ className }: { className?: string }) {
   return (
     <div className={`flex ${className}`}>

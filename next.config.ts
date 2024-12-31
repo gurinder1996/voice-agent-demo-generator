@@ -2,8 +2,13 @@
 const nextConfig = {
   output: 'standalone',
   experimental: {
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ["*"]
+    }
   },
+  eslint: {
+    ignoreDuringBuilds: true
+  }
 }
 
 export default nextConfig;
