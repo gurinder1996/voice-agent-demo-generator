@@ -49,6 +49,7 @@ const formSchema = z.object({
   objections: z.string().min(1, "Common objections are required"),
   additionalInfo: z.string().optional(),
   websiteUrl: z.string().url("Please enter a valid URL").optional().or(z.literal('')),
+  websiteContent: z.string().optional(),
 })
 
 const apiKeySchema = z.object({
@@ -113,6 +114,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
       objections: "",
       additionalInfo: "",
       websiteUrl: "",
+      websiteContent: "",
     },
   })
 
@@ -179,6 +181,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
             objections: formData.objections,
             additionalInfo: formData.additionalInfo,
             websiteUrl: formData.websiteUrl,
+            websiteContent: formData.websiteContent,
             apiKey: formData.apiKey,
             vapiKey: formData.vapiKey
           }
@@ -221,6 +224,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
         objections: formData.objections,
         additionalInfo: formData.additionalInfo,
         websiteUrl: formData.websiteUrl,
+        websiteContent: formData.websiteContent,
         apiKey: formData.apiKey,
         vapiKey: formData.vapiKey
       }
@@ -288,6 +292,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
           objections: parsedData.objections || "",
           additionalInfo: parsedData.additionalInfo || "",
           websiteUrl: parsedData.websiteUrl || "",
+          websiteContent: parsedData.websiteContent || "",
         }
         
         // Reset form with complete data
@@ -319,6 +324,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
         objections: currentFormData.objections,
         additionalInfo: currentFormData.additionalInfo,
         websiteUrl: currentFormData.websiteUrl,
+        websiteContent: currentFormData.websiteContent,
         apiKey: "",
         vapiKey: ""
       }
@@ -340,6 +346,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
         objections: "",
         additionalInfo: "",
         websiteUrl: "",
+        websiteContent: "",
       })
       localStorage.removeItem(STORAGE_KEY)
       setCanUndo(true)
@@ -625,6 +632,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
               </FormItem>
             )}
           />
+
         </div>
 
         <div className="flex gap-2">
