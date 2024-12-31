@@ -42,6 +42,9 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log('FIRECRAWL_API_KEY length:', process.env.FIRECRAWL_API_KEY.length);
+    console.log('FIRECRAWL_API_KEY first 5 chars:', process.env.FIRECRAWL_API_KEY.substring(0, 5));
+
     const app = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY });
     console.log('Starting crawl for URL:', url);
 
