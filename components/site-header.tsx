@@ -1,15 +1,15 @@
-import { FaGithub } from "react-icons/fa"
+import { FaGithub } from "react-icons/fa";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "./ui/tooltip"; // Adjusted import path
 
 export function SiteHeader() {
   return (
     <div className="relative space-y-2 text-center mb-4 bg-gray-50 p-8 rounded-lg">
-      <h1 className="text-4xl font-bold tracking-tight inline-block">The AI Agency USA</h1>
+      <h1 className="text-4xl font-bold tracking-tight inline-block">{process.env.NEXT_PUBLIC_AGENCY_NAME}</h1>
       <TooltipProvider delayDuration={100}>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -28,9 +28,7 @@ export function SiteHeader() {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <p className="text-muted-foreground text-lg">
-        
-      </p>
+      <p className="text-muted-foreground text-lg"></p>
     </div>
-  )
+  );
 }
