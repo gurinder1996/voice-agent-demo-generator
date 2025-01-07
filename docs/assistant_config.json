@@ -1,0 +1,27 @@
+{
+  "name": "sales-prompt-creator-transient-assistant",
+  "voice": {
+    "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+    "provider": "11labs",
+    "stability": 0.6,
+    "similarityBoost": 0.75,
+    "fillerInjectionEnabled": false,
+    "optimizeStreamingLatency": 4
+  },
+  "model": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "messages": [
+      {
+        "role": "system",
+        "content": "${SYSTEM_PROMPT}"
+      }
+    ]
+  },
+  "firstMessage": "Hi, this is ${ASSISTANT_NAME} from ${COMPANY_NAME}, is this the owner?",
+  "transcriber": {
+    "model": "nova-2",
+    "language": "en",
+    "provider": "deepgram"
+  }
+}
