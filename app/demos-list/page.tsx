@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
-import { Demo, DemoPreview } from '@/types/demo';
+import { Demo, DemoPreview } from '../../types/demo';
 import { format } from 'date-fns';
 import {
   Table,
@@ -11,16 +11,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from '../../components/ui/table';
+import { Button } from '../../components/ui/button';
 import { Copy } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '../../hooks/use-toast';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '../../components/ui/tooltip';
 
 const baseButtonStyles = "h-8 w-8 p-0 rounded-full border shadow-sm bg-white";
 
@@ -72,9 +72,13 @@ export default function DemosListPage() {
 
   useEffect(() => {
     async function fetchDemos() {
+      const tableName = process.env.NEXT_PUBLIC_SUPABASE_TABLE_NAME;
+      if (!tableName) {
+        throw new Error("NEXT_PUBLIC_SUPABASE_TABLE_NAME environment variable is not set");
+      }
       try {
         const { data, error } = await supabase
-          .from('voice_agent_configs')
+          .from(tableName)
           .select(`
             id,
             created_at,

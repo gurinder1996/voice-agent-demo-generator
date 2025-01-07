@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import FirecrawlApp from '@mendable/firecrawl-js';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 interface CrawlStatusResponse {
   success: boolean;
@@ -122,9 +122,14 @@ export async function POST(req: Request) {
       .join('\n\n');
 
     // Update the voice_agent_configs table with the website content
+    const tableName = process.env.NEXT_PUBLIC_SUPABASE_TABLE_NAME;
+    if (!tableName) {
+      throw new Error("NEXT_PUBLIC_SUPABASE_TABLE_NAME environment variable is not set");
+    }
+
     if (id) {
       const { error: updateError } = await supabase
-        .from('voice_agent_configs')
+        .from(tableName)
         .update({ 
           website_content: combinedContent,
           website_url: url

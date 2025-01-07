@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { supabase } from "../lib/supabase"
 import { Phone } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useCallState } from "@/lib/call-state"
-import { Card } from "@/components/ui/card"
+import { Button } from "../components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+import { useCallState } from "../lib/call-state"
+import { Card } from "../components/ui/card"
 import { useParams } from "next/navigation"
-import { voices } from "@/lib/voices"
+import { voices } from "../lib/voices"
 
 interface DemoSettings {
   id: string
@@ -63,9 +63,14 @@ export default function DemoPage() {
           return
         }
 
+        const tableName = process.env.NEXT_PUBLIC_SUPABASE_TABLE_NAME;
+        if (!tableName) {
+          throw new Error("NEXT_PUBLIC_SUPABASE_TABLE_NAME environment variable is not set");
+        }
+
         // If not in cache, fetch from Supabase
         const { data, error: supabaseError } = await supabase
-          .from("voice_agent_configs")
+          .from(tableName)
           .select("id, ai_representative_name, company_name, industry, target_audience, product_service_description, challenges_solved, call_objective, common_objections, additional_context, system_prompt, model_name, first_message")
           .eq("id", demoId)
           .single()

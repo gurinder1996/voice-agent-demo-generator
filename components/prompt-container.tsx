@@ -51,6 +51,10 @@ export function PromptContainer() {
   }, [])
 
   const handleSubmit = async (values: FormValues) => {
+    const tableName = process.env.NEXT_PUBLIC_SUPABASE_TABLE_NAME;
+    if (!tableName) {
+      throw new Error("NEXT_PUBLIC_SUPABASE_TABLE_NAME environment variable is not set");
+    }
     setIsLoading(true)
     setCurrentFormData(values)
     try {
@@ -58,7 +62,7 @@ export function PromptContainer() {
 
       // Save to Supabase
       const { data, error } = await supabase
-        .from('voice_agent_configs')
+        .from(tableName)
         .insert({
           ai_representative_name: values.aiName,
           company_name: values.companyName,
