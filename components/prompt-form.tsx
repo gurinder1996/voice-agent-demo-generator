@@ -52,19 +52,13 @@ const formSchema = z.object({
   websiteContent: z.string().optional(),
 })
 
-const apiKeySchema = z.object({
-  apiKey: z.string().min(1, "OpenAI API key is required"),
-  vapiKey: z.string().min(1, "VAPI API key is required"),
-})
-
 export type FormValues = z.infer<typeof formSchema>;
-export type ApiKeyValues = z.infer<typeof apiKeySchema>;
 
 interface PromptFormProps {
-  onSubmit: (values: FormValues & ApiKeyValues) => void
+  onSubmit: (values: FormValues) => void
   isLoading?: boolean
-  restoredFormData: FormValues & ApiKeyValues | null
-  onFormDataLoad?: (values: FormValues & ApiKeyValues) => void
+  restoredFormData: FormValues | null
+  onFormDataLoad?: (values: FormValues) => void
 }
 
 const STORAGE_KEY = "sales-prompt-form"
@@ -98,12 +92,10 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
     }
   }, [isApiOpen, mounted])
 
-  const form = useForm<FormValues & ApiKeyValues>({
-    resolver: zodResolver(z.intersection(formSchema, apiKeySchema)),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       model: "gpt-4o-mini",
-      apiKey: "",
-      vapiKey: "",
       aiName: "",
       companyName: "",
       industry: "",
@@ -120,8 +112,6 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
 
   // Load saved form data from localStorage
   useEffect(() => {
-    const savedApiKey = localStorage.getItem("openai-api-key")
-    const savedVapiKey = localStorage.getItem("vapi-api-key")
     const savedFormData = localStorage.getItem(STORAGE_KEY)
     const canUndoState = localStorage.getItem(UNDO_STATE_KEY) === "true"
     
@@ -130,18 +120,8 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
     if (savedFormData) {
       const parsedData = JSON.parse(savedFormData)
       Object.entries(parsedData).forEach(([key, value]) => {
-        if (key !== "apiKey" && key !== "vapiKey") {
-          form.setValue(key as keyof (FormValues & ApiKeyValues), value as string)
-        }
+        form.setValue(key as keyof FormValues, value as string)
       })
-    }
-    
-    if (savedApiKey) {
-      form.setValue("apiKey", savedApiKey)
-    }
-    
-    if (savedVapiKey) {
-      form.setValue("vapiKey", savedVapiKey)
     }
     
     setMounted(true)
@@ -152,19 +132,19 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
     }
   }, [form, onFormDataLoad])
 
-  // Watch for API keys changes and notify parent
+  // Watch for form changes and notify parent
   useEffect(() => {
     if (mounted) {
       const formData = form.getValues()
       onFormDataLoad?.(formData)
     }
-  }, [mounted, form.watch("vapiKey"), form.watch("apiKey"), onFormDataLoad])
+  }, [mounted, onFormDataLoad])
 
   // Debounced save function
   const debouncedSave = useCallback(
     (() => {
       let timeoutId: NodeJS.Timeout | null = null;
-      return (formData: FormValues & ApiKeyValues) => {
+      return (formData: FormValues) => {
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
@@ -181,26 +161,9 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
             objections: formData.objections,
             additionalInfo: formData.additionalInfo,
             websiteUrl: formData.websiteUrl,
-            websiteContent: formData.websiteContent,
-            apiKey: formData.apiKey,
-            vapiKey: formData.vapiKey
+            websiteContent: formData.websiteContent
           }
           localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
-          
-          // Handle OpenAI API key
-          if (formData.apiKey) {
-            localStorage.setItem("openai-api-key", formData.apiKey)
-          } else {
-            localStorage.removeItem("openai-api-key")
-          }
-          
-          // Handle VAPI API key
-          if (formData.vapiKey) {
-            localStorage.setItem("vapi-api-key", formData.vapiKey)
-          } else {
-            localStorage.removeItem("vapi-api-key")
-          }
-          
           timeoutId = null;
         }, 300);
       };
@@ -224,9 +187,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
         objections: formData.objections,
         additionalInfo: formData.additionalInfo,
         websiteUrl: formData.websiteUrl,
-        websiteContent: formData.websiteContent,
-        apiKey: formData.apiKey,
-        vapiKey: formData.vapiKey
+        websiteContent: formData.websiteContent
       }
       debouncedSave(formDataToSave)
       
@@ -242,22 +203,9 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
   // Handle restored form data
   useEffect(() => {
     if (restoredFormData && mounted) {
-      // Get current API keys before reset
-      const currentApiKeys = {
-        apiKey: form.getValues("apiKey"),
-        vapiKey: form.getValues("vapiKey")
-      };
-
-      // Merge restored data with current API keys
-      const mergedData = {
-        ...restoredFormData,
-        apiKey: currentApiKeys.apiKey,
-        vapiKey: currentApiKeys.vapiKey
-      };
-
       // Reset form and save to localStorage
-      form.reset(mergedData);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedData));
+      form.reset(restoredFormData);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(restoredFormData));
       
       // Clear undo state when restoring from history
       setCanUndo(false);
@@ -266,7 +214,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
     }
   }, [restoredFormData, form, mounted]);
 
-  const handleSubmit = (values: FormValues & ApiKeyValues) => {
+  const handleSubmit = (values: FormValues) => {
     onSubmit(values)
   }
 
@@ -277,23 +225,21 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
       if (deletedData) {
         const parsedData = JSON.parse(deletedData)
         
-        // Ensure we have all the required fields
-        const restoredData = {
-          model: parsedData.model || "gpt-4o-mini",
-          apiKey: form.getValues("apiKey"), // Keep current API key
-          vapiKey: form.getValues("vapiKey"), // Keep current VAPI key
-          aiName: parsedData.aiName || "",
-          companyName: parsedData.companyName || "",
-          industry: parsedData.industry || "",
-          targetAudience: parsedData.targetAudience || "",
-          challenges: parsedData.challenges || "",
-          product: parsedData.product || "",
-          objective: parsedData.objective || "",
-          objections: parsedData.objections || "",
-          additionalInfo: parsedData.additionalInfo || "",
-          websiteUrl: parsedData.websiteUrl || "",
-          websiteContent: parsedData.websiteContent || "",
-        }
+          // Ensure we have all the required fields
+          const restoredData = {
+            model: parsedData.model || "gpt-4o-mini",
+            aiName: parsedData.aiName || "",
+            companyName: parsedData.companyName || "",
+            industry: parsedData.industry || "",
+            targetAudience: parsedData.targetAudience || "",
+            challenges: parsedData.challenges || "",
+            product: parsedData.product || "",
+            objective: parsedData.objective || "",
+            objections: parsedData.objections || "",
+            additionalInfo: parsedData.additionalInfo || "",
+            websiteUrl: parsedData.websiteUrl || "",
+            websiteContent: parsedData.websiteContent || "",
+          }
         
         // Reset form with complete data
         form.reset(restoredData)
@@ -325,17 +271,11 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
         additionalInfo: currentFormData.additionalInfo,
         websiteUrl: currentFormData.websiteUrl,
         websiteContent: currentFormData.websiteContent,
-        apiKey: "",
-        vapiKey: ""
       }
       localStorage.setItem(DELETED_DATA_KEY, JSON.stringify(dataToStore))
       
-      const apiKey = form.getValues("apiKey")
-      const vapiKey = form.getValues("vapiKey")
       form.reset({
         model: "gpt-4o-mini",
-        apiKey,
-        vapiKey,
         aiName: "",
         companyName: "",
         industry: "",
@@ -353,7 +293,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
       localStorage.setItem(UNDO_STATE_KEY, "true")
       toast({
         title: "Form Reset",
-        description: "All fields have been cleared except the API keys",
+        description: "All fields have been cleared",
       })
     }
   }
@@ -364,73 +304,8 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
 
   return (
     <Form {...form}>
-      <form onSubmit={(e) => e.preventDefault()} className="space-y-8 bg-white rounded-lg border p-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 bg-white rounded-lg border p-6">
         <div className="space-y-4">
-          <Collapsible
-            open={isApiOpen}
-            onOpenChange={setIsApiOpen}
-            className="space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2 items-center">
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="w-9 p-0">
-                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${
-                      !isApiOpen ? "" : "rotate-180"
-                    }`} />
-                    <span className="sr-only">Toggle API configuration</span>
-                  </Button>
-                </CollapsibleTrigger>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">API Keys</span>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">Your API keys will be saved locally</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden">
-              <div className="flex gap-4 bg-background p-0.5">
-                <FormField
-                  control={form.control}
-                  name="apiKey"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>OpenAI API Key</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="sk-..." className="bg-muted/50" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="vapiKey"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>VAPI API Key</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="vapi-..." className="bg-muted/50" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          <Separator className="my-4" />
 
           <div className="flex items-end gap-2">
             <FormField
@@ -641,20 +516,7 @@ export function PromptForm({ onSubmit, isLoading = false, restoredFormData, onFo
             className="flex-1"
             disabled={isLoading}
             size="lg"
-            onClick={() => {
-              const apiKey = form.getValues("apiKey")
-              const vapiKey = form.getValues("vapiKey")
-              if (!apiKey || !vapiKey) {
-                toast({
-                  title: "API Keys Required",
-                  description: "Please check your OpenAI and VAPI API keys in the API Configuration section",
-                  variant: "destructive",
-                })
-                setIsApiOpen(true)
-                return
-              }
-              form.handleSubmit(handleSubmit)()
-            }}
+            onClick={() => form.handleSubmit(handleSubmit)()}
           >
             {isLoading ? "Generating..." : "Generate Prompt"}
           </Button>

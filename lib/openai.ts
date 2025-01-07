@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { type FormValues, type ApiKeyValues } from "@/components/prompt-form"
+import { type FormValues } from "../components/prompt-form"
 
 const SYSTEM_PROMPT = `Use the user provided data to create a personalized version of the following prompt. If website content is provided, use it to:
 1. Understand the company's actual products, services, and unique value propositions
@@ -243,12 +243,11 @@ Example dialogue for declined:
 George: "I understand you may not be ready for a demo right now. Could I ask what specific concerns you have about exploring this solution?"
 Person: "We're not interested right now."
 George: "I appreciate your directness. If your situation with missed calls changes, we're here to help. Thank you for your time today."
-
 `;
 
-export async function generateSalesPrompt(formData: FormValues & ApiKeyValues): Promise<string> {
+export async function generateSalesPrompt(formData: FormValues): Promise<string> {
   const openai = new OpenAI({
-    apiKey: formData.apiKey,
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
   });
 
@@ -320,6 +319,10 @@ ${websiteContent ? `Website Content:\n${websiteContent}` : ""}
 `;
 
   try {
+    console.log('Attempting to create OpenAI completion...');
+    console.log('Using model:', formData.model);
+    console.log('Using API key:', process.env.OPENAI_API_KEY ? '***' : 'MISSING');
+    
     const response = await openai.chat.completions.create({
       model: formData.model,
       messages: [
@@ -330,8 +333,10 @@ ${websiteContent ? `Website Content:\n${websiteContent}` : ""}
       max_tokens: 2000,
     });
 
+    console.log('OpenAI response received:', response);
     return response.choices[0]?.message?.content || "Failed to generate prompt";
   } catch (error) {
+    console.error('Error in generateSalesPrompt:', error);
     if (error instanceof Error) {
       throw new Error(`OpenAI API Error: ${error.message}`);
     }

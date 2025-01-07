@@ -2,18 +2,18 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { PromptForm } from "@/components/prompt-form"
-import { type FormValues, type ApiKeyValues } from "@/components/prompt-form"
-import { generateSalesPrompt } from "@/lib/openai"
-import { DemoLink } from "@/components/demo-link"
-import { supabase } from "@/lib/supabase"
+import { PromptForm } from "./prompt-form"
+import { type FormValues } from "./prompt-form"
+import { generateSalesPrompt } from "../lib/openai"
+import { DemoLink } from "./demo-link"
+import { supabase } from "../lib/supabase"
 
 const STORAGE_KEY = "sales-prompt-result"
 
 export function PromptContainer() {
   const [isLoading, setIsLoading] = useState(false)
   const [demoId, setDemoId] = useState<string | null>(null)
-  const [currentFormData, setCurrentFormData] = useState<(FormValues & ApiKeyValues) | null>(null)
+  const [currentFormData, setCurrentFormData] = useState<FormValues | null>(null)
   const formRef = useRef<HTMLDivElement>(null)
   const [formHeight, setFormHeight] = useState<number>(0)
 
@@ -50,10 +50,7 @@ export function PromptContainer() {
     }
   }, [])
 
-  const handleSubmit = async (values: FormValues & ApiKeyValues) => {
-    if (!values.vapiKey) {
-      return false
-    }
+  const handleSubmit = async (values: FormValues) => {
     setIsLoading(true)
     setCurrentFormData(values)
     try {
@@ -75,7 +72,7 @@ export function PromptContainer() {
           system_prompt: prompt,
           first_message: `Hi, this is ${values.aiName} from ${values.companyName}, is this the owner?`,
           model_name: values.model,
-          vapi_key: values.vapiKey,
+          vapi_key: process.env.NEXT_PUBLIC_VAPI_API_KEY,
           website_url: values.websiteUrl || null,
           website_content: values.websiteContent || null
         })

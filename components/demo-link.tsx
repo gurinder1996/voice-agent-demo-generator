@@ -5,20 +5,19 @@ import { Button } from "@/components/ui/button"
 import { Phone, Copy, RotateCcw, Trash2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FormValues, ApiKeyValues } from "./prompt-form"
+import { FormValues } from "./prompt-form"
 import { useCallState } from "@/lib/call-state"
 
 interface DemoHistoryItem {
   id: string
   timestamp: number
-  formData: Omit<FormValues, keyof ApiKeyValues>
-  vapiKey: string | null
+  formData: FormValues
 }
 
 interface DemoLinkProps {
   demoId: string | null
   isLoading: boolean
-  currentFormData: (FormValues & ApiKeyValues) | null
+  currentFormData: FormValues | null
 }
 
 const HISTORY_STORAGE_KEY = "demo-history"
@@ -57,8 +56,7 @@ export function DemoLink({ demoId, isLoading, currentFormData }: DemoLinkProps) 
             objections: currentFormData.objections,
             additionalInfo: currentFormData.additionalInfo,
             model: currentFormData.model
-          },
-          vapiKey: currentFormData.vapiKey || null
+          }
         }
 
         const updatedHistory = [newHistoryItem, ...history].slice(0, 10)
@@ -78,10 +76,10 @@ export function DemoLink({ demoId, isLoading, currentFormData }: DemoLinkProps) 
     }
   }
 
-  const handleCall = async (id: string, formData: Omit<FormValues, keyof ApiKeyValues>, historyItem?: DemoHistoryItem) => {
-    const vapiKey = historyItem?.vapiKey || currentFormData?.vapiKey
+  const handleCall = async (id: string, formData: FormValues, historyItem?: DemoHistoryItem) => {
+    const vapiKey = process.env.NEXT_PUBLIC_VAPI_API_KEY
     if (!vapiKey) {
-      alert("Please provide a VAPI API key to make calls")
+      alert("Please configure the VAPI API key in .env.local")
       return
     }
     
@@ -120,7 +118,7 @@ export function DemoLink({ demoId, isLoading, currentFormData }: DemoLinkProps) 
     }).format(new Date(timestamp))
   }
 
-  const renderDemoContent = (id: string, formData: Omit<FormValues, keyof ApiKeyValues>, showTimestamp = false, historyItem?: DemoHistoryItem) => {
+  const renderDemoContent = (id: string, formData: FormValues, showTimestamp = false, historyItem?: DemoHistoryItem) => {
     const actualId = id.replace('-history', '')
     const demoUrl = `${window.location.origin}/demo/${actualId}`
     const isActiveCall = callState === 'active' || callState === 'connecting'
