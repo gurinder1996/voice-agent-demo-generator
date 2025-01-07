@@ -80,7 +80,7 @@ export default function DemoPage() {
           // Always use the same VAPI key for demo pages
           const settingsWithDefaults = {
             ...data,
-            vapi_key: "a4282df5-5a2d-493c-b6c3-a8f7837b9bbc", // Hardcoded VAPI key for all demos
+            vapi_key: process.env.NEXT_PUBLIC_VAPI_API_KEY, // Use environment variable
             voice_provider: '11labs',
             voice_id: selectedVoiceId, // Use the selected voice ID
             voice_stability: 0.6,
@@ -112,8 +112,11 @@ export default function DemoPage() {
       await endCall(demoId)
     } else {
       try {
-        // Always use the hardcoded VAPI key for demo calls
-        const DEMO_VAPI_KEY = "a4282df5-5a2d-493c-b6c3-a8f7837b9bbc"
+        // Use environment variable for VAPI key
+        const DEMO_VAPI_KEY = process.env.NEXT_PUBLIC_VAPI_API_KEY
+        if (!DEMO_VAPI_KEY) {
+          throw new Error("NEXT_PUBLIC_VAPI_API_KEY environment variable is missing")
+        }
         console.log('VAPI Key from settings:', DEMO_VAPI_KEY)
         await initiateCall(
           demoId,
