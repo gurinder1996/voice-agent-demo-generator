@@ -6,20 +6,20 @@ import ReactMarkdown from "react-markdown"
 import { useEffect, useState, useCallback } from "react"
 import { PromptHistory } from "./prompt-history"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FormValues, ApiKeyValues } from "./prompt-form"
+import { FormValues } from "./prompt-form"
 
 interface PromptHistoryItem {
   id: string
   content: string
   timestamp: number
-  formData: Omit<FormValues, keyof ApiKeyValues>
+  formData: FormValues
 }
 
 interface GeneratedPromptProps {
   prompt: string | null
   isLoading: boolean
-  currentFormData: (FormValues & ApiKeyValues) | null
-  onRestoreFormData: (formData: FormValues & ApiKeyValues) => void
+  currentFormData: FormValues | null
+  onRestoreFormData: (formData: FormValues) => void
   onRestorePrompt: (prompt: string) => void
   onClearPrompt: () => void
   containerHeight: number
@@ -76,6 +76,8 @@ export function GeneratedPrompt({
           objective: currentFormData.objective,
           objections: currentFormData.objections,
           additionalInfo: currentFormData.additionalInfo,
+          websiteUrl: currentFormData.websiteUrl,
+          websiteContent: currentFormData.websiteContent
         } : {
           model: "gpt-4o-mini",
           aiName: "",
@@ -87,6 +89,8 @@ export function GeneratedPrompt({
           objective: "",
           objections: "",
           additionalInfo: "",
+          websiteUrl: "",
+          websiteContent: ""
         }
       }
 
@@ -126,13 +130,7 @@ export function GeneratedPrompt({
   }, [prompt, isLoading])
 
   const handleRestoreItem = useCallback((item: PromptHistoryItem) => {
-    // Preserve current API keys when restoring
-    const restoredFormData = {
-      ...item.formData,
-      apiKey: currentFormData?.apiKey || "",
-      vapiKey: currentFormData?.vapiKey || "",
-    };
-    onRestoreFormData(restoredFormData)
+    onRestoreFormData(item.formData)
     onRestorePrompt(item.content)
   }, [onRestoreFormData, onRestorePrompt, currentFormData])
 
@@ -200,12 +198,13 @@ export function GeneratedPrompt({
                         throw new Error('Please fill out the form first');
                       }
                       
-                      if (!currentFormData.vapiKey) {
-                        throw new Error('VAPI API key is required. Please enter it in the API Configuration section.');
+                      const vapiKey = process.env.NEXT_PUBLIC_VAPI_API_KEY;
+                      if (!vapiKey) {
+                        throw new Error('VAPI API key is required. Please configure it in your environment variables.');
                       }
 
                       return {
-                        apiKey: currentFormData.vapiKey,
+                        apiKey: vapiKey,
                         systemPrompt: prompt,
                         context: {
                           assistantName: currentFormData.aiName || 'AI Assistant',

@@ -7,23 +7,23 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "./ui/collapsible"
 import { CopyButton, DeleteButton, RestoreButton, CallButton } from "./prompt-actions"
 import { Button } from "./ui/button"
-import { FormValues, ApiKeyValues } from "./prompt-form"
+import { FormValues } from "./prompt-form"
 
 interface PromptHistoryItem {
   id: string
   content: string
   timestamp: number
-  formData: Omit<FormValues, keyof ApiKeyValues>
+  formData: FormValues
 }
 
 interface PromptHistoryProps {
   history: PromptHistoryItem[]
   onDelete: (id: string) => void
   onRestore: (item: PromptHistoryItem) => void
-  currentFormData: (FormValues & ApiKeyValues) | null
+  currentFormData: FormValues | null
 }
 
 const ITEMS_PER_PAGE = 10
@@ -56,20 +56,8 @@ export function PromptHistory({ history, onDelete, onRestore, currentFormData }:
   }
 
   const handleRestore = useCallback((item: PromptHistoryItem) => {
-    // When restoring, preserve the current API keys
-    const currentApiKeys = {
-      apiKey: currentFormData?.apiKey || "",
-      vapiKey: currentFormData?.vapiKey || "",
-    }
-    
-    onRestore({
-      ...item,
-      formData: {
-        ...item.formData,
-        ...currentApiKeys
-      }
-    })
-  }, [currentFormData, onRestore])
+    onRestore(item)
+  }, [onRestore])
 
   return (
     <div className="space-y-4">
@@ -110,12 +98,13 @@ export function PromptHistory({ history, onDelete, onRestore, currentFormData }:
                     <CallButton 
                       buttonId={`history-${item.id}`}
                       onCall={async () => {
-                        if (!currentFormData?.vapiKey) {
-                          throw new Error('VAPI API key is required. Please enter it in the API Configuration section.');
+                        const vapiKey = process.env.NEXT_PUBLIC_VAPI_API_KEY;
+                        if (!vapiKey) {
+                          throw new Error('VAPI API key is required. Please configure it in your environment variables.');
                         }
 
                         return {
-                          apiKey: currentFormData.vapiKey,
+                          apiKey: vapiKey,
                           systemPrompt: item.content,
                           context: {
                             assistantName: item.formData.aiName || 'AI Assistant',

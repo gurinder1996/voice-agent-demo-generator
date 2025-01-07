@@ -21,7 +21,7 @@ interface CrawlStatusResponse {
 
 async function testFirecrawl() {
   const apiKey = 'fc-d2e0e4bb47d747bea3fa397c8ba6a0cd';
-  console.log('Testing Firecrawl with API key:', apiKey);
+  // Removed API key logging
 
   try {
     const app = new FirecrawlApp({ apiKey });

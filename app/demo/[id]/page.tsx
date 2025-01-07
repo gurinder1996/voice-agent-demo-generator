@@ -117,7 +117,6 @@ export default function DemoPage() {
         if (!DEMO_VAPI_KEY) {
           throw new Error("NEXT_PUBLIC_VAPI_API_KEY environment variable is missing")
         }
-        console.log('VAPI Key from settings:', DEMO_VAPI_KEY)
         await initiateCall(
           demoId,
           DEMO_VAPI_KEY,
