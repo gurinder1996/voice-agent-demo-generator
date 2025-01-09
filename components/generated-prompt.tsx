@@ -197,18 +197,14 @@ export function GeneratedPrompt({
                       if (!currentFormData) {
                         throw new Error('Please fill out the form first');
                       }
-                      
-                      const vapiKey = process.env.NEXT_PUBLIC_VAPI_API_KEY;
-                      if (!vapiKey) {
-                        throw new Error('VAPI API key is required. Please configure it in your environment variables.');
-                      }
 
                       return {
-                        apiKey: vapiKey,
+                        apiKey: process.env.NEXT_PUBLIC_VAPI_API_KEY || '',
                         systemPrompt: prompt,
                         context: {
-                          assistantName: currentFormData.aiName || 'AI Assistant',
-                          companyName: currentFormData.companyName || 'Company'
+                          assistantName: currentFormData.ai_representative_name,
+                          companyName: currentFormData.company_name,
+                          firstMessage: "Hello, I'm calling from " + currentFormData.company_name + ". How are you today?"
                         }
                       };
                     }}
