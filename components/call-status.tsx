@@ -32,7 +32,7 @@ export function CallStatus({ className }: { className?: string }) {
   }
 
   return (
-    <div className={cn("text-sm font-medium", getStatusColor(), className)}>
+    <div className={cn("text-sm font-medium", getStatusColor(), className || '')}>
       {getStatusText()}
     </div>
   )
