@@ -34,12 +34,6 @@ interface DemoSettings {
   voice_optimize_streaming_latency: number
 }
 
-interface Voice {
-  id: string
-  name: string
-  provider: string
-}
-
 export default function DemoPage() {
   const params = useParams()
   const demoId = params?.id as string
