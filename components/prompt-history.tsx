@@ -108,7 +108,8 @@ export function PromptHistory({ history, onDelete, onRestore, currentFormData }:
                           systemPrompt: item.content,
                           context: {
                             assistantName: item.formData.aiName || 'AI Assistant',
-                            companyName: item.formData.companyName || 'Company'
+                            companyName: item.formData.companyName || 'Company',
+                            firstMessage: `Hi, this is ${item.formData.aiName || 'AI Assistant'} from ${item.formData.companyName || 'Company'}, how can I help you today?`
                           }
                         };
                       }}
