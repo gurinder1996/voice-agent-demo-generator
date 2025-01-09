@@ -158,7 +158,12 @@ interface CallButtonProps {
   onCall?: () => Promise<{
     apiKey: string,
     systemPrompt: string,
-    context: { assistantName: string; companyName: string }
+    context: { 
+      assistantName: string; 
+      companyName: string;
+      firstMessage: string;
+      voice?: any;
+    }
   }>;
 }
 
