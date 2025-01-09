@@ -202,9 +202,9 @@ export function GeneratedPrompt({
                         apiKey: process.env.NEXT_PUBLIC_VAPI_API_KEY || '',
                         systemPrompt: prompt,
                         context: {
-                          assistantName: currentFormData.ai_representative_name,
-                          companyName: currentFormData.company_name,
-                          firstMessage: "Hello, I'm calling from " + currentFormData.company_name + ". How are you today?"
+                          assistantName: currentFormData.aiName,
+                          companyName: currentFormData.companyName,
+                          firstMessage: "Hello, I'm calling from " + currentFormData.companyName + ". How are you today?"
                         }
                       };
                     }}
