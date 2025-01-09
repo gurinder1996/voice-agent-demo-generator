@@ -92,7 +92,8 @@ export function DemoLink({ demoId, isLoading, currentFormData }: DemoLinkProps) 
         `You are ${formData.aiName}, an AI sales representative for ${formData.companyName}, a company specializing in ${formData.industry}. You focus on helping ${formData.targetAudience} address their ${formData.challenges} through expert consultations. Your primary objective for each call is to ${formData.objective}.`,
         {
           assistantName: formData.aiName,
-          companyName: formData.companyName
+          companyName: formData.companyName,
+          firstMessage: `Hi, this is ${formData.aiName} from ${formData.companyName}, how can I help you today?`
         }
       )
     } catch (error) {
