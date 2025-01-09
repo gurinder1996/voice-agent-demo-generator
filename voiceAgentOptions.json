@@ -118,9 +118,9 @@
     "user-interrupted"
   ],
   "silenceTimeoutSeconds": 30,
-  "maxDurationSeconds": 300,
+  "maxDurationSeconds": 600,
   "backgroundSound": "off",
-  "backgroundDenoisingEnabled": true,
+  "backgroundDenoisingEnabled": false,
   "modelOutputInMessagesEnabled": false,
   "transportConfigurations": [
     {
