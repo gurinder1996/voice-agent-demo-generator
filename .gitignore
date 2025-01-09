@@ -38,3 +38,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# redundant config files
+next.config.mjs
+next.config.ts
+package-lock.json
