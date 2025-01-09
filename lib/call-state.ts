@@ -23,7 +23,7 @@ interface CallStateStore {
     buttonId: string,
     apiKey: string,
     systemPrompt: string,
-    context: { assistantName: string; companyName: string; voice?: any }
+    context: { assistantName: string; companyName: string; firstMessage: string; voice?: any }
   ) => Promise<void>
   endCall: (buttonId: string) => Promise<void>
   handleError: (error: Error) => void
@@ -92,7 +92,7 @@ export const useCallState = create<CallStateStore>((set, get) => ({
               { role: 'system' as const, content: systemPrompt }
             ]
           },
-          firstMessage: `Hi, this is ${context.assistantName} from ${context.companyName}, is this the owner?`,
+          firstMessage: context.firstMessage,
           transcriber: {
             provider: 'deepgram' as const,
             model: 'nova-2' as const,

@@ -1,4 +1,6 @@
 export const voices = [
+    { name: "Heather - Mature British lady", id: "4XHqIi1c86s718fjqNEF" },
+    { name: "Kate - older British voice", id: "JqqFyydyksim5yVVTgAK" },
     { name: "Aaron", id: "D9Thk1W7FRMgiOhy3zVI" },
     { name: "Aiden - The Everyday Guy", id: "4zVVKJJRwoOAAeUwtCQ1" },
     { name: "Amber", id: "2BP0mL5uSfNKL5oaqVC0" },
@@ -58,4 +60,6 @@ export const voices = [
     { name: "Vivie", id: "z7U1SjrEq4fDDDriOQEN" },
     { name: "Young Jamal", id: "6OzrBCQf8cjERkYgzSg8" },
     { name: "Zuri", id: "C3x1TEM7scV4p2AXJyrp" },
+    
+
 ] as const

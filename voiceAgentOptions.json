@@ -1,0 +1,241 @@
+{
+  "id": "id",
+  "orgId": "orgId",
+  "createdAt": "2024-01-15T09:30:00Z",
+  "updatedAt": "2024-01-15T09:30:00Z",
+  "transcriber": {
+    "provider": "talkscriber",
+    "language": "en",
+    "model": "whisper"
+  },
+  "model": {
+    "provider": "xai",
+    "model": "grok-beta",
+    "emotionRecognitionEnabled": true,
+    "knowledgeBase": {
+      "server": {
+        "url": "url",
+        "timeoutSeconds": 20
+      }
+    },
+    "knowledgeBaseId": "model",
+    "maxTokens": 1.1,
+    "messages": [
+      {
+        "role": "assistant"
+      }
+    ],
+    "numFastTurns": 1.1,
+    "temperature": 1.1,
+    "toolIds": [
+      "model"
+    ],
+    "tools": [
+      {
+        "type": "transferCall",
+        "async": false
+      }
+    ]
+  },
+  "voice": {
+    "provider": "tavus",
+    "voiceId": "r52da2535a",
+    "callbackUrl": "voice",
+    "chunkPlan": {
+      "enabled": true,
+      "minCharacters": 30,
+      "punctuationBoundaries": [
+        "。",
+        "，",
+        ".",
+        "!",
+        "?",
+        ";",
+        "،",
+        "۔",
+        "।",
+        "॥",
+        "|",
+        "||",
+        ",",
+        ":"
+      ],
+      "formatPlan": {
+        "enabled": true,
+        "numberToDigitsCutoff": 2025
+      }
+    },
+    "conversationName": "voice",
+    "conversationalContext": "voice",
+    "customGreeting": "voice",
+    "fallbackPlan": {
+      "voices": [
+        {
+          "provider": "tavus",
+          "voiceId": "r52da2535a"
+        }
+      ]
+    },
+    "personaId": "voice",
+    "properties": {
+      "maxCallDuration": 1.1,
+      "participantLeftTimeout": 1.1,
+      "participantAbsentTimeout": 1.1,
+      "enableRecording": true,
+      "enableTranscription": true,
+      "applyGreenscreen": true,
+      "language": "language",
+      "recordingS3BucketName": "recordingS3BucketName",
+      "recordingS3BucketRegion": "recordingS3BucketRegion",
+      "awsAssumeRoleArn": "awsAssumeRoleArn"
+    }
+  },
+  "firstMessage": "Hello! How can I help you today?",
+  "firstMessageMode": "assistant-speaks-first",
+  "hipaaEnabled": false,
+  "clientMessages": [
+    "conversation-update",
+    "function-call",
+    "hang",
+    "model-output",
+    "speech-update",
+    "status-update",
+    "transfer-update",
+    "transcript",
+    "tool-calls",
+    "user-interrupted",
+    "voice-input"
+  ],
+  "serverMessages": [
+    "conversation-update",
+    "end-of-call-report",
+    "function-call",
+    "hang",
+    "speech-update",
+    "status-update",
+    "tool-calls",
+    "transfer-destination-request",
+    "user-interrupted"
+  ],
+  "silenceTimeoutSeconds": 30,
+  "maxDurationSeconds": 300,
+  "backgroundSound": "off",
+  "backgroundDenoisingEnabled": true,
+  "modelOutputInMessagesEnabled": false,
+  "transportConfigurations": [
+    {
+      "provider": "twilio",
+      "timeout": 60,
+      "record": false,
+      "recordingChannels": "mono"
+    }
+  ],
+  "name": "name",
+  "voicemailDetection": {
+    "provider": "twilio",
+    "voicemailDetectionTypes": [
+      "machine_end_beep",
+      "machine_end_silence"
+    ],
+    "enabled": true,
+    "machineDetectionTimeout": 1.1,
+    "machineDetectionSpeechThreshold": 1.1,
+    "machineDetectionSpeechEndThreshold": 1.1,
+    "machineDetectionSilenceTimeout": 1.1
+  },
+  "voicemailMessage": "voicemailMessage",
+  "endCallMessage": "endCallMessage",
+  "endCallPhrases": [
+    "endCallPhrases"
+  ],
+  "metadata": {
+    "key": "value"
+  },
+  "analysisPlan": {
+    "summaryPlan": {
+      "messages": [
+        {
+          "key": "value"
+        }
+      ],
+      "enabled": true,
+      "timeoutSeconds": 1.1
+    },
+    "structuredDataPlan": {
+      "messages": [
+        {
+          "key": "value"
+        }
+      ],
+      "enabled": true,
+      "schema": {
+        "type": "string"
+      },
+      "timeoutSeconds": 1.1
+    },
+    "successEvaluationPlan": {
+      "rubric": "NumericScale",
+      "messages": [
+        {
+          "key": "value"
+        }
+      ],
+      "enabled": true,
+      "timeoutSeconds": 1.1
+    }
+  },
+  "artifactPlan": {
+    "recordingEnabled": true,
+    "videoRecordingEnabled": false,
+    "transcriptPlan": {
+      "enabled": true,
+      "assistantName": "assistantName",
+      "userName": "userName"
+    },
+    "recordingPath": "recordingPath"
+  },
+  "messagePlan": {
+    "idleMessages": [
+      "idleMessages"
+    ],
+    "idleMessageMaxSpokenCount": 1.1,
+    "idleTimeoutSeconds": 1.1
+  },
+  "startSpeakingPlan": {
+    "waitSeconds": 0.4,
+    "smartEndpointingEnabled": false,
+    "customEndpointingRules": [
+      {
+        "type": "both",
+        "assistantRegex": "customEndpointingRules",
+        "customerRegex": "customEndpointingRules",
+        "timeoutSeconds": 1.1
+      }
+    ],
+    "transcriptionEndpointingPlan": {
+      "onPunctuationSeconds": 0.1,
+      "onNoPunctuationSeconds": 1.5,
+      "onNumberSeconds": 0.5
+    }
+  },
+  "stopSpeakingPlan": {
+    "numWords": 0,
+    "voiceSeconds": 0.2,
+    "backoffSeconds": 1
+  },
+  "monitorPlan": {
+    "listenEnabled": false,
+    "controlEnabled": false
+  },
+  "credentialIds": [
+    "credentialIds"
+  ],
+  "server": {
+    "url": "url",
+    "timeoutSeconds": 20,
+    "secret": "secret",
+    "headers": {
+      "key": "value"
+    }
+  }
+}

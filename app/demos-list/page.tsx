@@ -124,7 +124,8 @@ export default function DemosListPage() {
           </TableHeader>
           <TableBody>
             {demos.map((demo) => {
-              const demoUrl = `https://voice-agent-demos.myaicalls.info/demo/${demo.id}`;
+              const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+              const demoUrl = `${baseUrl}/demo/${demo.id}`;
               return (
                 <TableRow key={demo.id}>
                   <TableCell className="font-medium">{demo.company_name}</TableCell>

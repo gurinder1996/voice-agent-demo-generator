@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "../lib/supabase"
+import { supabase } from "@/lib/supabase"
 import { Phone } from "lucide-react"
-import { Button } from "../components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
-import { useCallState } from "../lib/call-state"
-import { Card } from "../components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useCallState } from "@/lib/call-state"
+import { Card } from "@/components/ui/card"
 import { useParams } from "next/navigation"
-import { voices } from "../lib/voices"
+import { voices } from "@/lib/voices"
 
 interface DemoSettings {
   id: string
@@ -69,6 +69,7 @@ export default function DemoPage() {
         }
 
         // If not in cache, fetch from Supabase
+        console.log("Fetching from Supabase with table:", tableName, "and demoId:", demoId);
         const { data, error: supabaseError } = await supabase
           .from(tableName)
           .select("id, ai_representative_name, company_name, industry, target_audience, product_service_description, challenges_solved, call_objective, common_objections, additional_context, system_prompt, model_name, first_message")
@@ -81,7 +82,8 @@ export default function DemoPage() {
         }
 
         if (data) {
-          console.log("Supabase data:", data)
+          console.log("Raw Supabase data:", data)
+          console.log("First message from Supabase:", data.first_message)
           // Always use the same VAPI key for demo pages
           const settingsWithDefaults = {
             ...data,
@@ -117,6 +119,8 @@ export default function DemoPage() {
       await endCall(demoId)
     } else {
       try {
+        console.log("Current settings before call:", settings)
+        console.log("First message being passed to initiateCall:", settings.first_message)
         // Use environment variable for VAPI key
         const DEMO_VAPI_KEY = process.env.NEXT_PUBLIC_VAPI_API_KEY
         if (!DEMO_VAPI_KEY) {
@@ -129,6 +133,7 @@ export default function DemoPage() {
           {
             assistantName: settings.ai_representative_name,
             companyName: settings.company_name,
+            firstMessage: settings.first_message,
             voice: {
               voiceId: selectedVoiceId,
               stability: 0.6,
@@ -138,6 +143,7 @@ export default function DemoPage() {
             }
           }
         )
+        console.log("Call initiated successfully with first message:", settings.first_message)
       } catch (err) {
         console.error("Failed to initiate call:", err)
         setError("Failed to start call. Please try again.")
