@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCallState } from "@/lib/call-state"
 import { Card } from "@/components/ui/card"
 import { useParams } from "next/navigation"
-import { voices } from "@/lib/voices"
+import { Voice, RealisticVoice, fetchVoices, fetchRealisticVoices, fallbackVoices } from "@/lib/voices"
 
 interface DemoSettings {
   id: string
@@ -44,7 +44,9 @@ export default function DemoPage() {
   const params = useParams()
   const demoId = params?.id as string
   const [settings, setSettings] = useState<DemoSettings | null>(null)
-  const [selectedVoiceId, setSelectedVoiceId] = useState<string>(voices[0].id)
+  const [voices, setVoices] = useState<Voice[]>(fallbackVoices)
+  const [realisticVoices, setRealisticVoices] = useState<RealisticVoice[]>([])
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>(fallbackVoices[0].id)
   const { initiateCall, endCall, state: callState } = useCallState()
   const isActiveCall = callState === 'active'
   const [error, setError] = useState<string | null>(null)
@@ -112,6 +114,22 @@ export default function DemoPage() {
     fetchSettings()
   }, [demoId, selectedVoiceId])
 
+  useEffect(() => {
+    // Fetch voices from Supabase
+    const loadVoices = async () => {
+      const [voicesList, realisticVoicesList] = await Promise.all([
+        fetchVoices(),
+        fetchRealisticVoices()
+      ]);
+      setVoices(voicesList);
+      setRealisticVoices(realisticVoicesList);
+      if (voicesList.length > 0) {
+        setSelectedVoiceId(voicesList[0].id);
+      }
+    };
+    loadVoices();
+  }, []);
+
   const handleCallButton = async () => {
     if (!settings || !demoId) return
 
@@ -119,8 +137,14 @@ export default function DemoPage() {
       await endCall(demoId)
     } else {
       try {
-        console.log("Current settings before call:", settings)
-        console.log("First message being passed to initiateCall:", settings.first_message)
+        // Find the selected voice to get its provider
+        const selectedVoice = voices.find(v => v.id === selectedVoiceId);
+        if (!selectedVoice) {
+          throw new Error("Selected voice not found");
+        }
+
+        console.log("Selected voice:", selectedVoice);
+        
         // Use environment variable for VAPI key
         const DEMO_VAPI_KEY = process.env.NEXT_PUBLIC_VAPI_API_KEY
         if (!DEMO_VAPI_KEY) {
@@ -136,6 +160,7 @@ export default function DemoPage() {
             firstMessage: settings.first_message,
             voice: {
               voiceId: selectedVoiceId,
+              provider: selectedVoice.provider,
               stability: 0.6,
               similarityBoost: 0.75,
               fillerInjectionEnabled: false,
@@ -178,56 +203,59 @@ export default function DemoPage() {
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-4 p-12 space-y-10">
-      <div className="text-center space-y-6">
-        <h1 className="text-4xl font-bold tracking-tight">
-          Welcome! I'm {capitalizeFirstLetter(settings?.ai_representative_name)}, <br/>
-          your AI Assistant from {settings?.company_name}
+    <div className="flex flex-col gap-8 max-w-xl mx-auto p-4">
+      <Card className="p-6">
+        <h1 className="text-2xl font-bold text-center mb-2">
+          Welcome! I'm {capitalizeFirstLetter(settings?.ai_representative_name) || 'Casey'},
         </h1>
-        <p className="text-xl text-muted-foreground">
-          Click the button below to start a conversation
+        <h2 className="text-xl text-center mb-4">
+          your AI Assistant from {settings?.company_name || 'Acme Computer Corp.'} 
+        </h2>
+        <p className="text-gray-600 text-center mb-6">
+        Choose from 50+ AI voices below
         </p>
-      </div>
-
-      <div className="space-y-8">
-        <Select
-          value={selectedVoiceId}
-          onValueChange={setSelectedVoiceId}
-        >
-          <SelectTrigger className="w-full h-14 text-lg">
-            <SelectValue placeholder="Select a voice" />
-          </SelectTrigger>
-          <SelectContent>
-            {voices.map((voice) => (
-              <SelectItem key={voice.id} value={voice.id}>
-                {voice.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Button
-          onClick={handleCallButton}
-          disabled={!settings || loading}
-          className="w-full h-14 text-lg"
-          variant={isActiveCall ? "destructive" : "default"}
-        >
-          {isActiveCall ? (
-            <>End Call</>
-          ) : (
-            <div className="flex items-center justify-center gap-2">
-              <Phone className="h-6 w-6" />
-              <span>Start Call</span>
-            </div>
-          )}
-        </Button>
-      </div>
-
-      {error && (
-        <div className="text-sm text-red-500 text-center">
-          {error}
+        <div className="flex flex-col gap-4">
+          <Select value={selectedVoiceId} onValueChange={setSelectedVoiceId}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {voices.map((voice) => (
+                <SelectItem key={voice.id} value={voice.id}>
+                  {voice.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            className="w-full"
+            onClick={handleCallButton}
+            disabled={!settings || loading}
+            variant={isActiveCall ? "destructive" : "default"}
+          >
+            <Phone className="mr-2 h-4 w-4" />
+            {isActiveCall ? "End Call" : "Start Call"}
+          </Button>
         </div>
+      </Card>
+
+      {realisticVoices.length > 0 && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4 text-center">
+           💫 Popular Voices
+            <p className="text-sm text-gray-600 font-normal mt-1">
+              These voices are known for their natural and lifelike quality
+            </p>
+          </h3>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            {realisticVoices.map((voice) => (
+              <div key={voice.voice_id} className="p-2 rounded bg-gray-50 hover:bg-gray-100 transition-colors">
+                {voice.voice_name}
+              </div>
+            ))}
+          </div>
+        </Card>
       )}
-    </Card>
+    </div>
   )
 }

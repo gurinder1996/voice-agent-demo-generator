@@ -78,7 +78,7 @@ export const useCallState = create<CallStateStore>((set, get) => ({
         const assistant: CreateAssistantDTO = {
           name: context.assistantName,
           voice: {
-            provider: '11labs' as const,
+            provider: context.voice?.provider || '11labs' as const,
             voiceId: context.voice?.voiceId || 'JBFqnCBsd6RMkjVDRZzb',
             stability: context.voice?.stability || 0.6,
             similarityBoost: context.voice?.similarityBoost || 0.75,
