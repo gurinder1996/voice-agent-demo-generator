@@ -43,7 +43,7 @@ const TabsList = React.forwardRef<
         )}
         {...props}
       >
-        {selectedTab && <TabIndicator selectedTab={selectedTab} />}
+        {selectedTab ? <TabIndicator selectedTab={selectedTab} /> : null}
         {props.children}
       </TabsPrimitive.List>
     </div>
