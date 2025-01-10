@@ -9,7 +9,7 @@ import {
 export function SiteHeader() {
   return (
     <div className="relative space-y-2 text-center mb-4 bg-gray-50 p-8 rounded-lg">
-      <h1 className="text-4xl font-bold tracking-tight inline-block">The AI Agency USA</h1>
+      <h1 className="text-4xl font-bold tracking-tight inline-block">AI Voice Agent Demo</h1>
       <TooltipProvider delayDuration={100}>
         <Tooltip>
           <TooltipTrigger asChild>
